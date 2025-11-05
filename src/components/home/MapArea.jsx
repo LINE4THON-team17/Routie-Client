@@ -4,7 +4,7 @@ export const MapArea = () => {
   useKakaoLoader();
 
   return (
-    <div className="mx-[-112px] h-[calc(100vh-140px)]">
+    <div className="mx-[-112px] h-[calc(100vh-130px)]">
       <Map
         className="w-full h-full"
         id="map"
