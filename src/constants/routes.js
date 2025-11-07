@@ -6,5 +6,6 @@ export const ROUTES = {
   SEARCH: "/search",
   COURSE: "/course/:id",
   ROUTEMAKE: "/routemake",
-  ADDROUTE: "/addroute"
+  ADDROUTE: "/addroute",
+  PLACE: "/course/:courseId/place/:placeId",
 };

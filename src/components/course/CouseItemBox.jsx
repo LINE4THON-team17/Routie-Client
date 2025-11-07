@@ -1,7 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import sampleImg from "../../assets/images/sampleCourseImg.png";
-export const CourseItemBox = () => {
+
+export const CourseItemBox = ({ courseId, placeId }) => {
+  const navigate = useNavigate();
+  console.log({ courseId, placeId });
+
   return (
-    <div className="flex gap-[17px] py-[12.5px] px-3 bg-white flex-1 rounded-[8px] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] items-center border-[0.5px] border-[var(--color-bg)]">
+    <div
+      className="flex gap-[17px] py-[12.5px] px-3 bg-white flex-1 rounded-[8px] shadow-[0_4px_4px_0_rgba(0,0,0,0.25)] items-center border-[0.5px] border-[var(--color-bg)]"
+      onClick={() => navigate(`/course/${courseId}/place/${placeId}`)}
+    >
       <img src={sampleImg} alt="" />
       <div className="flex flex-col gap-1">
         <div className="flex gap-[5px] items-center">
