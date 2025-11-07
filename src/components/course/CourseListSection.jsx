@@ -5,10 +5,12 @@ import saveIcon from "../../assets/icons/saveIcon.svg";
 import saveIconWhite from "../../assets/icons/saveIconWhite.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
 import { useState } from "react";
+
 const steps = [0, 0, 0, 0];
 
-export const CourseListSection = () => {
+export const CourseListSection = ({ onClick }) => {
   const [save, setSave] = useState(false);
+
   const SAVEICON = save ? saveIconWhite : saveIcon;
   return (
     <div className="px-[23px] pt-2 h-[calc(100%-40px)] overflow-y-auto pb-60">
@@ -43,10 +45,14 @@ export const CourseListSection = () => {
         })}
       </div>
       <div className="pb-[50px] typo-regular-s gap-6 flex justify-center  ">
-        <button className="flex items-center border-[0.5px] border-[var(--color-gray)] py-[5.5px] px-[30px] rounded-[8px] gap-[7px]">
+        <button
+          className="flex items-center border-[0.5px] border-[var(--color-gray)] py-[5.5px] px-[30px] rounded-[8px] gap-[7px]"
+          onClick={onClick}
+        >
           Share
           <img src={shareIcon} alt="share" />
         </button>
+
         <button
           className={`flex items-center border-[0.5px] border-[var(--color-gray)] py-[5.5px] px-[30px] rounded-[8px] gap-[7px] ${
             save ? "bg-[#444] text-white" : ""
