@@ -10,23 +10,23 @@ body {
     margin: 0;
 }
 
-#addroute_wrap {
+#uploading_wrap {
     width: 100%;
     height: 100vh;
-    background-color: #fff;
-    color: black;
+    background: #fff;
+    color: #000;
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    .add_header {
+    .uploading_header {
         width: 100%;
         height: 58px;
         display: flex;
         align-items: center;
         position: relative;
         border-bottom: 1px solid #c6c6c6;
-        background-color: #fff;
+        background: #fff;
 
         .back_btn {
             position: absolute;
@@ -44,30 +44,34 @@ body {
         }
     }
 
-
-    .content {
-        padding: 0 23px 150px;
-        padding-top: -20px;
+    .uploading_content {
+        padding: 0 23px 250px;
+        padding-top: 30px;
         width: 100%;
         position: relative;
         flex: 1;
         overflow-y: auto;
 
+        .visitday p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 13px;
+        }
+
         .place_title {
             display: flex;
             position: relative;
-            margin-top: 50px;
 
             p {
                 font-size: 16px;
-                font-weight: 500;
+                font-weight: 600;
             }
 
             .category {
                 margin-left: 5px;
                 width: 40px;
                 height: 20px;
-                background-color: #2CCA6E;
+                background: #2CCA6E;
                 border-radius: 16px;
                 margin-top: 2px;
 
@@ -82,7 +86,7 @@ body {
 
             .cancle {
                 position: absolute;
-                right: 0px;
+                right: 0;
                 top: 50%;
                 transform: translateY(-50%);
                 background: none;
@@ -90,7 +94,7 @@ body {
                 cursor: pointer;
                 width: 21px;
                 height: 15px;
-                padding: 0px;
+                padding: 0;
 
                 p {
                     font-size: 12px;
@@ -99,16 +103,78 @@ body {
             }
         }
 
-        .upload {
+        /* === 트리플 슬라이더(양옆 50px 노출) === */
+        .slider {
+            overflow: hidden;
+            position: relative;
+            margin-top: 24px;
+            padding: 0 50px 40px;
+            /* 좌우 패딩은 그대로 */
+            -webkit-overflow-scrolling: touch;
+
+            .nav_zone {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 30%;
+                background: transparent;
+                border: none;
+                outline: none;
+                box-shadow: none;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                -webkit-tap-highlight-color: transparent;
+                cursor: pointer;
+                z-index: 2;
+
+                &.left {
+                    left: 0;
+                }
+
+                &.right {
+                    right: 0;
+                }
+            }
+        }
+
+        .slider_track {
+            display: flex;
+            will-change: transform;
+
+            &.anim {
+                transition: transform 0.3s ease-out;
+            }
+        }
+
+        /* 게시글 간격 5px */
+        .slide_card {
+            min-width: calc(100% - 10px);
+            /* 5px 양쪽 간격 반영 */
+            margin-right: 5px;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0.35;
+            transform: scale(0.9);
+
+            &.is-center {
+                opacity: 1;
+                transform: scale(1.08);
+                /* 중앙 카드 크기 확대 */
+                z-index: 5;
+            }
+        }
+
+
+        .uploaded_img2 {
             margin-top: 24px;
             width: 100%;
-            height: 327px;
-            background-color: #C6C6C6;
+            height: 295px;
+            background: #C6C6C6;
             border-radius: 8px;
-            justify-content: center;
-            align-items: center;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
 
             img {
                 margin: 0 auto;
@@ -122,7 +188,7 @@ body {
 
         .review {
             margin-top: 20px;
-            background-color: #F4F4F5;
+            background: #F4F4F5;
             width: 100%;
             height: 112px;
             border-radius: 12px;
@@ -134,7 +200,7 @@ body {
                 height: 100%;
                 border: none;
                 background: transparent;
-                resize: none; 
+                resize: none;
                 outline: none;
                 font-size: 12px;
                 font-family: inherit;
@@ -154,7 +220,6 @@ body {
             }
         }
 
-
         .plus_btn {
             display: flex;
             justify-content: center;
@@ -162,7 +227,7 @@ body {
             margin: 18px auto;
             width: 50px;
             height: 50px;
-            background-color: #444444;
+            background: #444;
             border-radius: 50%;
             border: none;
             cursor: pointer;
@@ -174,18 +239,44 @@ body {
         }
 
         .complete {
-            background-color: #F9D769;
+            background: #F9D769;
             width: 89px;
             height: 39px;
             position: absolute;
-            top: 615px;
+            top: 655px;
             right: 23px;
             border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
 
             p {
-                color: black;
+                color: #000;
                 font-size: 16px;
                 font-weight: 500;
+            }
+        }
+
+        .under_dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            background-color: none;
+
+            .dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #D9D9D9;
+                cursor: pointer;
+                transition: background-color .3s ease;
+
+                &.active {
+                    background: #000;
+                }
             }
         }
     }

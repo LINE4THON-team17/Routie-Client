@@ -25,24 +25,37 @@ body {
 
             .input_box {
                 width: 100%;
-                height: 39px;
+                min-height: 39px;
                 margin-top: 13px;
                 border: 1px solid #C6C6C6;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
+                background: #fff;
+                padding: 8px 12px;
 
-                input {
+                textarea {
                     width: 100%;
-                    height: 100%;
-                    padding-left: 20px;
+                    min-height: 23px;
+                    line-height: 23px;
                     border: none;
                     outline: none;
+                    box-shadow: none;
                     background: transparent;
                     font-size: 12px;
+                    resize: none;
+                    overflow: hidden;
+                    padding: 0;
+                }
+
+                textarea:focus {
+                    outline: none;
+                    border: none;
+                    box-shadow: none;
                 }
             }
         }
+
 
         .recommend,
         .keyword,
@@ -57,17 +70,19 @@ body {
 
             .input_box {
                 width: 100%;
-                height: 39px;
+                min-height: 39px;
+                height: auto;
                 margin-top: 13px;
                 border: 1px solid #C6C6C6;
                 border-radius: 8px;
                 display: flex;
                 align-items: center;
+                background: #fff;
+                padding: 6px 8px;
+                position: relative;
 
                 .hash {
-                    margin-left: 20px;
-                    font-size: 12px;
-                    color: #000;
+                    display: none;
                 }
 
                 input {
@@ -78,10 +93,67 @@ body {
                     background: transparent;
                     font-size: 12px;
                     color: #000;
-                    padding-left: 6px;
+                    padding-left: 2px;
+                }
+
+                .tagify {
+                    border: none !important;
+                    box-shadow: none !important;
+                    width: 100%;
+                    font-size: 12px;
+                    background: transparent;
+                    position: relative;
+
+                    .tagify__input {
+                        position: relative;
+                        text-indent: 16px;
+                    }
+
+                    .tagify__input::before {
+                        content: "#";
+                        position: absolute;
+                        left: -7px;
+                        top: 0;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        color: #000;
+                        opacity: 0.7;
+                        font-weight: 500;
+                        transition: opacity 0.2s ease;
+                        pointer-events: none;
+                    }
+
+                    .tagify__input:not(:empty)::before {
+                        content: "";
+                        opacity: 0;
+                    }
+
+                    .tagify__tag {
+                        background: #f4f4f4 !important;
+                        color: #000 !important;
+                        border: 1px solid #C6C6C6 !important;
+                        border-radius: 6px;
+                        padding: 2px 6px;
+                        box-shadow: none !important;
+                        transition: none !important;
+                    }
+
+                    .tagify__tag-text::before {
+                        content: "#";
+                        margin-right: 2px;
+                    }
+
+                    .tagify__tag:hover,
+                    .tagify__tag--active,
+                    .tagify__tag--editing,
+                    .tagify__tag--invalid {
+                        background: #f4f4f4 !important;
+                        border-color: #C6C6C6 !important;
+                        color: #000 !important;
+                    }
                 }
             }
-
         }
 
         .visit {
@@ -94,28 +166,7 @@ body {
                 gap: 16px;
                 width: 323px;
 
-                .input_box1 {
-                    width: 100%;
-                    height: 39px;
-                    margin-top: 13px;
-                    border: 1px solid #C6C6C6;
-                    border-radius: 8px;
-                    display: flex;
-                    align-items: center;
-                    flex: 0 0 135px;
-                    max-width: 135px;
-
-                    input {
-                        width: 100%;
-                        height: 100%;
-                        padding-left: 104px;
-                        border: none;
-                        outline: none;
-                        background: transparent;
-                        font-size: 12px;
-                    }
-                }
-
+                .input_box1,
                 .input_box2 {
                     width: 100%;
                     height: 39px;
@@ -124,18 +175,59 @@ body {
                     border-radius: 8px;
                     display: flex;
                     align-items: center;
-                    flex: 0 0 78px;
-                    max-width: 78px;
+                    background: #fff;
+                    position: relative;
 
                     input {
                         width: 100%;
                         height: 100%;
-                        padding-left: 47px;
                         border: none;
                         outline: none;
                         background: transparent;
                         font-size: 12px;
+                        text-align: right;
+                        padding: 0 34px 0 10px;
                     }
+                }
+
+                .input_box1 {
+                    flex: 0 0 135px;
+                    max-width: 135px;
+                }
+
+                .input_box2 {
+                    flex: 0 0 78px;
+                    max-width: 78px;
+                }
+
+                .input_box1::after {
+                    content: "년";
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 12px;
+                    color: #000;
+                }
+
+                .input_box2:nth-of-type(2)::after {
+                    content: "월";
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 12px;
+                    color: #000;
+                }
+
+                .input_box2:nth-of-type(3)::after {
+                    content: "일";
+                    position: absolute;
+                    right: 15px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 12px;
+                    color: #000;
                 }
             }
         }
