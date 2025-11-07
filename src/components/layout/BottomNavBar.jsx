@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   {
-    paths: ["/"],
+    paths: ["/", "/course"],
     icon: homeIcon,
     activeIcon: homeIconActive,
     label: "홈",
@@ -37,7 +37,7 @@ export const BottomNavBar = () => {
       {navItems.map(({ paths, icon, activeIcon, label }) => {
         const isActive =
           paths[0] === "/"
-            ? pathname === "/"
+            ? pathname === "/" || pathname.startsWith("/course")
             : paths.some((path) => pathname.startsWith(path));
         return (
           <button

@@ -1,3 +1,4 @@
+import { BottomSheet } from "../components/home/BottomSheet";
 import { FloatingBtn } from "../components/home/FloatingBtn";
 import { HomeCourseSection } from "../components/home/HomeCourseSection";
 import { MapArea } from "../components/home/MapArea";
@@ -11,7 +12,9 @@ export const Home = () => {
         <div className="relative">
           <SeaechBar />
           <MapArea />
-          <HomeCourseSection />
+          <BottomSheet>
+            <HomeCourseSection />
+          </BottomSheet>
           <FloatingBtn />
         </div>
       </Layout>
