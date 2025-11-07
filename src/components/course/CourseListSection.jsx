@@ -8,7 +8,7 @@ import { useState } from "react";
 
 const steps = [0, 0, 0, 0];
 
-export const CourseListSection = ({ onClick }) => {
+export const CourseListSection = ({ onClick, courseId }) => {
   const [save, setSave] = useState(false);
 
   const SAVEICON = save ? saveIconWhite : saveIcon;
@@ -18,7 +18,7 @@ export const CourseListSection = ({ onClick }) => {
         {steps.map((_, idx) => {
           let isStartOrEnd = idx === 0 || idx === steps.length - 1;
           return (
-            <div key={idx} className="gap-5 flex items-center ">
+            <div key={idx} className="gap-5 flex items-center">
               {!isStartOrEnd ? (
                 <div className="w-[30px] h-[30px] bg-[var(--color-yellow)] rounded-full relative z-1 items-center flex justify-center">
                   {idx !== steps.length - 1 ? (
@@ -39,7 +39,7 @@ export const CourseListSection = ({ onClick }) => {
                 </div>
               )}
 
-              <CourseItemBox />
+              <CourseItemBox courseId={courseId} placeId={idx} />
             </div>
           );
         })}
