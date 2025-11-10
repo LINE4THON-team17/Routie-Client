@@ -112,7 +112,7 @@ const Input = styled.input`
   border: 1.5px solid #e5e5ea;
   border-radius: 12px;
   padding: 0 16px;
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
   transition: border-color 0.2s ease;
 

@@ -119,7 +119,7 @@ const Field = styled.div`
 `;
 
 const Label = styled.label`
-  font-size: 14px;
+  font-size: 15px;
   color: #222;
   font-weight: 400;
 `;
@@ -129,7 +129,8 @@ const Input = styled.input`
   border: 1.5px solid #e5e5ea;
   border-radius: 12px;
   padding: 0 16px;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 400;
   outline: none;
   transition: border-color 0.2s ease;
 
@@ -150,7 +151,7 @@ const Submit = styled.button`
   background: #000;
   color: #fff;
   font-size: 18px;
-  font-weight: 800;
+  font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.02s ease;
 
@@ -168,15 +169,15 @@ const BottomRow = styled.div`
   flex-direction: column;
   justify-content: center;
   margin-top: 22px;
-  color: #333;
   font-size: 15px;
+  text-align: center;
 `;
 
 const LoginLink = styled.button`
   border: 0;
   background: none;
   padding: 0;
-  color: #2f6ee6;
+  color: var(--color-blue, #417ff9);
   cursor: pointer;
 `;
 
