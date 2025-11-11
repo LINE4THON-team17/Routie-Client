@@ -85,7 +85,7 @@ const TopSpacer = styled.div`
 `;
 
 const Logo = styled.img`
-  width: 168px;
+  width: 250px;
   height: auto;
   user-select: none;
 `;
@@ -93,8 +93,8 @@ const Logo = styled.img`
 const Title = styled.h1`
   margin-top: 16px;
   margin-bottom: 40px;
-  font-size: 30px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 600;
   text-align: center;
   line-height: 1.3;
 `;
