@@ -114,7 +114,7 @@ const HeaderRight = styled.div`
 const LogoutBtn = styled.button`
   border: 0;
   background: none;
-  color: #ff6f9f;
+  color: var(--Color-pink, #fe5081);
   font-weight: 700;
   cursor: pointer;
 `;
