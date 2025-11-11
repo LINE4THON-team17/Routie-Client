@@ -27,9 +27,10 @@ body {
     display: flex;
     align-items: center;
     position: relative;
-    z-index: 5; 
+    z-index: 5;
     border-bottom: 1px solid #c6c6c6;
     background-color: #fff;
+    flex: 0 0 58px;
 
     .back_btn {
       position: absolute;
@@ -53,6 +54,10 @@ body {
     margin: 27px auto 0;
     position: relative;
     z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 
     .search_box {
       position: relative;
@@ -65,6 +70,7 @@ body {
       display: flex;
       justify-content: center;
       align-items: center;
+      flex: 0 0 40px;
 
       .input_wrap {
         display: flex;
@@ -103,7 +109,7 @@ body {
       margin-left: 15px;
       position: relative;
       z-index: 0;
-      pointer-events: none; 
+      pointer-events: none;
 
       p {
         font-size: 12px;
@@ -116,8 +122,11 @@ body {
       position: relative;
       z-index: 0;
       padding: 20px 26px;
-
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       gap: 20px;
+      padding-bottom: 100px;
 
       .empty {
         color: #777;
@@ -126,7 +135,7 @@ body {
       }
 
       .place_box {
-        display: block; 
+        display: block;
         width: 100%;
         min-height: 75px;
         text-align: left;
@@ -136,13 +145,13 @@ body {
         border-radius: 8px;
         padding: 20px 22px;
         cursor: pointer;
-         margin-top: 20px;
+        margin-top: 20px;
 
         &:active {
           transform: translateY(1px);
         }
 
-        .address p {     
+        .address p {
           font-size: 10px;
           color: #444444;
           margin: 0 0 6px;
@@ -153,13 +162,15 @@ body {
           align-items: center;
 
           .category {
-            min-width: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             height: 20px;
             background-color: #2cca6e;
             border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 0 10px;
+            width: auto;
+            min-width: 40px;
 
             p {
               font-size: 12px;
@@ -167,6 +178,7 @@ body {
               color: #fff;
               margin: 0;
               line-height: 1;
+              white-space: nowrap;
             }
           }
 

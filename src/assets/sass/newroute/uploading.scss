@@ -68,23 +68,28 @@ body {
             }
 
             .category {
-                margin-left: 5px;
-                width: 40px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 height: 20px;
-                background: #2CCA6E;
+                background-color: #2cca6e;
                 border-radius: 16px;
-                margin-top: 2px;
+                padding: 0 10px;
+                width: auto;
+                min-width: 40px;
+                margin-left: 5px;
 
                 p {
                     font-size: 12px;
                     font-weight: 400;
                     color: #fff;
-                    text-align: center;
-                    margin-top: 1px;
+                    margin: 0;
+                    line-height: 1;
+                    white-space: nowrap;
                 }
             }
 
-            .cancle {
+            .cancel {
                 position: absolute;
                 right: 0;
                 top: 50%;
@@ -103,13 +108,11 @@ body {
             }
         }
 
-        /* === 트리플 슬라이더(양옆 50px 노출) === */
         .slider {
             overflow: hidden;
             position: relative;
             margin-top: 24px;
             padding: 0 50px 40px;
-            /* 좌우 패딩은 그대로 */
             -webkit-overflow-scrolling: touch;
 
             .nav_zone {
@@ -147,10 +150,8 @@ body {
             }
         }
 
-        /* 게시글 간격 5px */
         .slide_card {
             min-width: calc(100% - 10px);
-            /* 5px 양쪽 간격 반영 */
             margin-right: 5px;
             transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             opacity: 0.35;
@@ -159,7 +160,6 @@ body {
             &.is-center {
                 opacity: 1;
                 transform: scale(1.08);
-                /* 중앙 카드 크기 확대 */
                 z-index: 5;
             }
         }

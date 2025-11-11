@@ -1,29 +1,49 @@
-import React, { useState } from 'react'
-import { BottomNavBar } from '../layout/BottomNavBar'
-import back_btn from '../../assets/icons/backIcon.svg'
-import cameraIcon from '../../assets/icons/cameraIcon.svg'
-import plusIcon from '../../assets/icons/plusIcon.svg'
-import '../../assets/sass/newroute/addroute.scss'
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { BottomNavBar } from '../layout/BottomNavBar';
+import back_btn from '../../assets/icons/backIcon.svg';
+import cameraIcon from '../../assets/icons/cameraIcon.svg';
+import plusIcon from '../../assets/icons/plusIcon.svg';
+import '../../assets/sass/newroute/addroute.scss';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+const STORAGE_KEY = 'addroute_posts_v1';
 
 const Addroute = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [posts, setPosts] = useState([
-    { imageUrl: '', review: '' },
-  ]);
+  const [posts, setPosts] = useState(() => {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    try {
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  const handleComplete = () => {
-    navigate('/uploading');
-  };
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  }, [posts]);
 
-  const handleAddPost = () => {
-    setPosts(prev => [...prev, { imageUrl: '', review: '' }]);
-    requestAnimationFrame(() => {
-      const scroller = document.querySelector('#addroute_wrap .content');
-      if (scroller) scroller.scrollTop = scroller.scrollHeight;
-    });
-  };
+  const processedKeyRef = useRef(null);
+  useEffect(() => {
+    const incoming = location.state?.place;
+    if (!incoming) return;
+
+    if (processedKeyRef.current === location.key) return;
+    processedKeyRef.current = location.key;
+
+    setPosts(prev => [
+      ...prev,
+      { imageUrl: '', review: '', placeName: incoming.name, category: incoming.category },
+    ]);
+
+    navigate('/addroute', { replace: true });
+  }, [location.key, location.state, navigate]);
+
+  const handleComplete = () => navigate('/uploading');
+
+  const handleAddPost = () => navigate('/placesearch', { state: { from: '/addroute' } });
 
   const handleRemovePost = (idx) => {
     setPosts(prev => prev.filter((_, i) => i !== idx));
@@ -50,7 +70,7 @@ const Addroute = () => {
   return (
     <div id='addroute_wrap'>
       <div className="add_header">
-        <button className="back_btn">
+        <button className="back_btn" onClick={() => navigate(-1)}>
           <img src={back_btn} alt="" />
         </button>
         <p>글 작성</p>
@@ -58,36 +78,42 @@ const Addroute = () => {
 
       <div className="content">
         {posts.map((post, idx) => (
-          <div key={idx}>
+          <div key={`${post.placeName}-${idx}`}>
             <div className="place_title">
-              <p>{idx + 1}번 스타벅스 충무로역점</p>
+              <p>{idx + 1}번 {post.placeName || '장소 미지정'}</p>
               <div className="category">
-                <p>카페</p>
+                <p>{post.category || '카테고리'}</p>
               </div>
-              <button className="cancle" onClick={() => handleRemovePost(idx)}>
+              <button className="cancel" onClick={() => handleRemovePost(idx)}>
                 <p>취소</p>
               </button>
             </div>
 
             <div className="upload">
-              <label htmlFor={`imageUpload-${idx}`} className='upload_label'>
-                {post.imageUrl ? (
-                  <img src={post.imageUrl} alt="preview" />
-                ) : (
-                  <>
-                    <img src={cameraIcon} alt="" />
-                    <p>가장 기억에 남는 사진을 업로드 해주세요</p>
-                  </>
-                )}
+              <label htmlFor={`imageUpload-${idx}`} className="upload_label">
+                <div className="upload_inner">
+                  {post.imageUrl ? (
+                    <img className="preview" src={post.imageUrl} alt="preview" />
+                  ) : (
+                    <>
+                      <img className="camera" src={cameraIcon} alt="" />
+                      <p className="upload_tip">가장 기억에 남는 사진을 업로드 해주세요</p>
+                    </>
+                  )}
+                </div>
               </label>
+
               <input
                 type="file"
                 id={`imageUpload-${idx}`}
                 accept="image/*"
-                style={{ display: "none" }}
+                style={{ display: 'none' }}
                 onChange={(e) => handleImage(idx, e.target.files?.[0])}
               />
             </div>
+
+
+
 
             <div className="review">
               <textarea
@@ -116,7 +142,7 @@ const Addroute = () => {
 
       <BottomNavBar />
     </div>
-  )
-}
+  );
+};
 
-export default Addroute
+export default Addroute;
