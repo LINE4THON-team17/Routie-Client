@@ -21,8 +21,8 @@ export async function requestLogin({ email, password }) {
     const res = await axiosInstance.post("/auth/login", { email, password });
     const body = res;
 
-    if (body?.status === 200 && body?.data?.accessToken) {
-      localStorage.setItem("accessToken", body.data.accessToken);
+    if (body?.status === 200 && body?.data?.data?.accessToken) {
+      localStorage.setItem("accessToken", body.data.data.accessToken);
     }
     return body;
   } catch (err) {
@@ -33,11 +33,10 @@ export async function requestLogin({ email, password }) {
 export async function requestLogout() {
   console.log("[logout] ▶ POST /auth/logout");
   try {
-    const res = await axiosInstance.post("/auth/logout");
+    const res = await instance.post("/auth/logout");
     localStorage.removeItem("accessToken");
-    return res;
+    return res.data;
   } catch (err) {
-    localStorage.removeItem("accessToken");
     handleAuthError(err, "logout");
   }
 }
