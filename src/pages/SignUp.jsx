@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { Header } from "../components/layout/Header";
+import { requestSignup } from "../api/auth";
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -10,10 +11,11 @@ export function SignUp() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const isValid = useMemo(() => {
     const okEmail = /\S+@\S+\.\S+/.test(email);
-    const okPw = password.length >= 4;
+    const okPw = password.length >= 8; // 비밀번호 8자 이상 => 사용자들에게 설명 필요.
     const okId = username.trim().length >= 2;
     return okEmail && okPw && okId;
   }, [email, password, username]);
@@ -24,10 +26,24 @@ export function SignUp() {
 
     try {
       setLoading(true);
-      await new Promise((r) => setTimeout(r, 700));
-      navigate("/login");
+      setErrorMsg("");
+
+      const res = await requestSignup({
+        email,
+        password,
+        nickname: username,
+      });
+
+      if (res?.status === 201) {
+        alert("회원가입 성공! 로그인 페이지로 이동합니다.");
+        navigate("/login");
+      } else {
+        setErrorMsg(
+          res?.data?.message || "회원가입 처리 중 오류가 발생했습니다."
+        );
+      }
     } catch (err) {
-      alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+      setErrorMsg(err.message || "회원가입에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -39,41 +55,47 @@ export function SignUp() {
       <Inner>
         <Form onSubmit={handleSubmit}>
           <Field>
-            <Label>이메일</Label>
-            <Input
-              placeholder="입력"
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <Label>
+              이메일
+              <Input
+                placeholder="입력"
+                type="email"
+                name="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Label>
           </Field>
-
           <Field>
-            <Label>비밀번호</Label>
-            <Input
-              placeholder="입력"
-              type="password"
-              name="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Label>
+              아이디
+              <Input
+                placeholder="입력"
+                type="text"
+                id="user-id"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </Label>
           </Field>
-
           <Field>
-            <Label>아이디</Label>
-            <Input
-              placeholder="입력"
-              type="text"
-              name="username"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <Label>
+              비밀번호
+              <Input
+                placeholder="입력"
+                type="password"
+                name="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Label>
           </Field>
 
+          {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
           <Submit type="submit" disabled={!isValid || loading}>
             {loading ? "처리 중..." : "회원가입"}
           </Submit>
@@ -119,6 +141,8 @@ const Field = styled.div`
 `;
 
 const Label = styled.label`
+  display: flex;
+  flex-direction: column;
   font-size: 15px;
   color: #222;
   font-weight: 400;
@@ -138,14 +162,21 @@ const Input = styled.input`
     color: var(--Color-bg, #c6c6c6);
     font-weight: 400;
   }
+
   &:focus {
     border-color: #9e9ea7;
   }
 `;
 
+const ErrorMsg = styled.p`
+  color: #e5484d;
+  font-size: 14px;
+  margin-top: -8px;
+`;
+
 const Submit = styled.button`
   height: 56px;
-  margin-top: 30px;
+  margin-top: 20px;
   border: none;
   border-radius: 12px;
   background: #000;
@@ -155,9 +186,6 @@ const Submit = styled.button`
   cursor: pointer;
   transition: opacity 0.2s ease, transform 0.02s ease;
 
-  /* &:active {
-    transform: translateY(1px);
-  } */
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -180,7 +208,3 @@ const LoginLink = styled.button`
   color: var(--color-blue, #417ff9);
   cursor: pointer;
 `;
-
-// export const Upload = () => {
-//   return <div>Upload</div>;
-// };

@@ -2,7 +2,11 @@ import React, { useMemo, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { Layout } from "../components/layout/layout";
+import profile from "../assets/icons/profile.svg";
+import friendIcon from "../assets/icons/friendIcon.svg";
 import shareIcon from "../assets/icons/shareIcon.svg";
+import settingIcon from "../assets/icons/settingIcon.svg";
+import badge from "../assets/icons/badge.svg";
 
 export function MyPage() {
   const navigate = useNavigate();
@@ -40,32 +44,27 @@ export function MyPage() {
 
       <Inner>
         <ProfileRow>
-          <Avatar>
-            <CamWrap>📷</CamWrap>
-          </Avatar>
-
+          <img src={profile} alt="프로필 사진" />
           <UserCol>
             <UserName>유저아이디</UserName>
           </UserCol>
 
           <BadgeCol>
-            <Badge></Badge>
-            <Badge></Badge>
+            <img src={badge} alt="뱃지" />
           </BadgeCol>
         </ProfileRow>
 
         <QuickRow>
           <QuickBtn onClick={() => navigate("/routies")}>
-            <Icon src={shareIcon} alt="share" />
+            <img src={friendIcon} alt="친구" />
             <span>Routies</span>
           </QuickBtn>
           <QuickBtn onClick={() => alert("공유 기능 연결 예정")}>
-            <Icon>공유아이콘</Icon>
+            <img src={shareIcon} alt="공유" />
             <span>Share</span>
           </QuickBtn>
           <QuickBtn onClick={() => navigate("/settings")}>
-            <Icon>설정아이콘</Icon>
-            <span>설정</span>
+            <img src={settingIcon} alt="설정" />
           </QuickBtn>
         </QuickRow>
 
@@ -135,14 +134,14 @@ const ProfileRow = styled.div`
   border-bottom: 1px solid #e9e9ed;
 `;
 
-const Avatar = styled.div`
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: #bdbdbd;
-  position: relative;
-  margin-left: 4px;
-`;
+// const Avatar = styled.div`
+//   width: 84px;
+//   height: 84px;
+//   border-radius: 50%;
+//   background: #bdbdbd;
+//   position: relative;
+//   margin-left: 4px;
+// `;
 
 const CamWrap = styled.div`
   position: absolute;
@@ -231,7 +230,7 @@ const Tab = styled.button`
   height: 44px;
   border: 0;
   background: transparent;
-  font-weight: 700;
+  font-weight: 400;
   border-bottom: 2px solid ${(p) => (p.$active ? "#222" : "transparent")};
 `;
 
