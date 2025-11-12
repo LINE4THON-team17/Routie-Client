@@ -20,7 +20,22 @@ export function Login() {
     e?.preventDefault();
     if (!isValid || loading) return;
 
-    
+    try {
+      setLoading(true);
+      const body = await requestLogin({ email, password });
+
+      if (body?.status === 200) {
+        alert("로그인 성공");
+        navigate("/home");
+      } else {
+        alert(body?.message || "로그인에 실패했습니다.");
+      }
+    } catch (err) {
+      alert(err?.message || "로그인 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Page>
