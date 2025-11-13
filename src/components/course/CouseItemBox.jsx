@@ -20,9 +20,8 @@ export const CourseItemBox = ({ courseId, placedata }) => {
       <div className="flex flex-col gap-1">
         <div className="flex gap-[5px] items-center">
           <p
-            className={`text-white text-[8px] font-light rounded-[16px] px-[6px] py-[2px]  whitespace-nowrap flex-shrink-0 bg-[${getCategoryColor(
-              category
-            )}]`}
+            className={`text-white text-[8px] font-light rounded-[16px] px-[6px] py-[2px]  whitespace-nowrap flex-shrink-0 `}
+            style={{ backgroundColor: getCategoryColor(category) }}
           >
             {category}
           </p>

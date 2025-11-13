@@ -46,9 +46,8 @@ export const PlaceDetailPage = () => {
       <section className="w-full  py-4 px-7 border-b-[0.5px] border-[var(--color-bg)]">
         <div className="flex gap-3 items-center">
           <p
-            className={`w-[39px] h-[21px] rounded-[16px]  text-white justify-center text-[12px] items-center flex font-normal bg-[${getCategoryColor(
-              category
-            )}]`}
+            className={` h-[21px] rounded-[16px]  text-white justify-center text-[12px] items-center flex font-normal py-[3px] px-[9px] `}
+            style={{ backgroundColor: getCategoryColor(category) }}
           >
             {category}
           </p>
