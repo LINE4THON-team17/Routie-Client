@@ -1,4 +1,6 @@
 import { Map, MapMarker, useKakaoLoader } from "react-kakao-maps-sdk";
+import { getCategoryColor } from "../../constants/categoryColor";
+import { createMarkerSvg } from "../../constants/createMarkerSvg";
 
 export const MapArea = ({ places = [] }) => {
   useKakaoLoader();
@@ -15,13 +17,22 @@ export const MapArea = ({ places = [] }) => {
         }
         level={4}
       >
-        {places.map((p, idx) => (
-          <MapMarker
-            key={idx}
-            position={{ lat: p.latitude, lng: p.longitude }}
-            title={p.name}
-          />
-        ))}
+        {places.map((p, idx) => {
+          const color = getCategoryColor(p.category.split("/")[0]);
+          const markerUrl = createMarkerSvg(color);
+          return (
+            <MapMarker
+              key={idx}
+              position={{ lat: p.latitude, lng: p.longitude }}
+              title={p.name}
+              image={{
+                src: markerUrl,
+                size: { width: 25, height: 25 },
+                options: { offset: { x: 12, y: 12 } },
+              }}
+            />
+          );
+        })}
       </Map>
     </div>
   );
