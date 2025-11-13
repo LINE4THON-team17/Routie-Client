@@ -40,7 +40,6 @@ function App() {
           path={ROUTES.ROUTIEAICHATBANNER}
           element={<RoutieChatBanner />}
         />
-        {/* <Route path="/routies" element={<Routies />} /> */}
       </Routes>
     </BrowserRouter>
   );

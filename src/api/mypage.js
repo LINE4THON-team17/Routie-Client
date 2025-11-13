@@ -1,4 +1,3 @@
-// src/api/mypage.js
 import { axiosInstance } from "./axiosInstance";
 
 /** 내 프로필 조회/수정 */
@@ -7,7 +6,7 @@ export const getMyProfile = () => axiosInstance.get("/users/me");
 export const updateMyProfile = (payload) =>
   axiosInstance.patch("/users/me", payload);
 
-/** 저장한 루트 목록 (page: 0부터) */
+/** 저장한 루트 목록*/
 export const getSavedRoutes = ({ page = 0, size = 20 } = {}) =>
   axiosInstance.get("/users/me/saved", { params: { page, size } });
 
@@ -18,11 +17,10 @@ export const getMyFriends = () => axiosInstance.get("/users/me/friends");
 export const createShareLink = (userId) =>
   axiosInstance.post(`/users/${userId}/share`);
 
-/** 루트 상세 (card에 필요한 데이터 뽑기용) */
+/** 루트 상세*/
 export const getRouteDetailRaw = (routeId) =>
   axiosInstance.get(`/routes/${routeId}`);
 
-/** 여러 routeId -> 카드용 요약으로 하이드레이트 (백에 요약목록 없을 때 사용) */
 export const hydrateRoutesByIds = async (ids = []) => {
   if (!ids.length) return [];
 
