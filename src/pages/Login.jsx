@@ -26,7 +26,7 @@ export function Login() {
 
       if (body?.status === 200) {
         alert("로그인 성공");
-        navigate("/home");
+        navigate("/");
       } else {
         alert(body?.message || "로그인에 실패했습니다.");
       }
