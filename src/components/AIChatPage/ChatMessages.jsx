@@ -1,7 +1,7 @@
 import routiePrf from "../../assets/icons/rotiePrf.svg";
 import routieMePrf from "../../assets/icons/routieMePrf.svg";
 
-export function ChatMessages({ messages, onSelect }) {
+export function ChatMessages({ messages }) {
   return (
     <div className="flex flex-col gap-3 p-4 ">
       {messages.map((m, i) => {
@@ -11,7 +11,7 @@ export function ChatMessages({ messages, onSelect }) {
         return (
           <div
             key={i}
-            className={`flex  gap-2 ${
+            className={`flex  gap-2  ${
               isUser ? "justify-end" : "justify-start"
             } items-end`}
           >
@@ -31,26 +31,11 @@ export function ChatMessages({ messages, onSelect }) {
                 ${
                   isUser
                     ? "bg-[var(--color-yellow)] self-end  rounded-l-[30px] rounded-tr-[20px]"
-                    : "bg-[var(--color-pink)] text-white border border-[#eee] rounded-r-[30px] rounded-tl-[20px]"
+                    : "bg-[var(--color-pink)] text-white ] rounded-r-[30px] rounded-tl-[20px]"
                 }
               `}
             >
               <div className="whitespace-pre-wrap">{m.text}</div>
-
-              {/* 옵션 버튼 */}
-              {m.options && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {m.options.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => onSelect(opt)}
-                      className="px-3 py-1 rounded-full text-sm bg-[#FFE9E4] text-[var(--color-pink)]"
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* 내 프로필 */}
