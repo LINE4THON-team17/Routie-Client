@@ -22,6 +22,7 @@ export const PlaceDetailPage = () => {
   const placedata = coursedata?.places?.find(
     (place) => place.placeId === placeIdNum
   );
+  const category = placedata.category.split("/")[0];
 
   if (isLoading) return <div>로딩중...</div>;
   if (isError || !placedata) return <div>해당 장소를 찾을 수 없습니다.</div>;
@@ -38,7 +39,7 @@ export const PlaceDetailPage = () => {
       <section className="w-full  py-4 px-7 border-b-[0.5px] border-[var(--color-bg)]">
         <div className="flex gap-3 items-center">
           <p className="w-[39px] h-[21px] rounded-[16px] bg-[var(--color-green)] text-white justify-center text-[12px] items-center flex font-normal">
-            {placedata.category}
+            {category}
           </p>
           <h4 className="typo-semibold">{placedata.name}</h4>
         </div>
