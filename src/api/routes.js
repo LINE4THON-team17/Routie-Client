@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "./axiosInstance";
 
 export const getRoutes = async () => {
@@ -9,3 +10,15 @@ export const getDetailRoute = async (routeId) => {
   const res = await axiosInstance.get(`/routes/${routeId}`);
   return res.data.data;
 };
+
+export function useCreateRoute() {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const res = await axiosInstance.post(`/routes`, payload);
+      return res.data;
+    },
+    onError: (err) => {
+      console.error("코스 저장 실패:", err);
+    },
+  });
+}

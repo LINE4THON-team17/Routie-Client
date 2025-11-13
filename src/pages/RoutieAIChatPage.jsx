@@ -4,10 +4,13 @@ import { useLutiEngine } from "../hooks/useLutiEngine";
 import dogFoot from "../assets/images/dogDot.png";
 import { ChatBottomBar } from "../components/AIChatPage/ChatBottomBar";
 import routiePrf from "../assets/icons/rotiePrf.svg";
+import { useCreateRoute } from "../api/routes";
+import { useNavigate } from "react-router-dom";
 
 export default function RoutieAIChatPage() {
   const { messages, onSelect, onSend, result, loading } = useLutiEngine();
-
+  const { mutate: createRoute } = useCreateRoute();
+  const navigate = useNavigate();
   console.log(result);
   const handleSave = () => {
     if (!result) return;
@@ -28,10 +31,15 @@ export default function RoutieAIChatPage() {
         review: p.description || "",
       })),
     };
-
     console.log("Payload:", payload);
-
-    // API 연결 필요
+    createRoute(payload, {
+      onSuccess: (res) => {
+        const routeId = res?.data?.routeId;
+        if (routeId) {
+          navigate(`/course/${routeId}`);
+        }
+      },
+    });
   };
 
   return (
