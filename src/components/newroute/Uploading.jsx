@@ -1,16 +1,25 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { BottomNavBar } from '../layout/BottomNavBar';
 import back_btn from '../../assets/icons/backIcon.svg';
 import cameraIcon from '../../assets/icons/cameraIcon.svg';
 import '../../assets/sass/newroute/uploading.scss';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { createRoute } from '../../api/routesApi';
 
 const STORAGE_KEY = 'addroute_posts_v1';
 
 const Uploading = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeInfo = location.state || {};
 
+  const [current, setCurrent] = useState(0);
   const [posts, setPosts] = useState([]);
+  const [trackIndex, setTrackIndex] = useState(1);
+  const [isAnimating, setIsAnimating] = useState(true);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
   useEffect(() => {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     try {
@@ -20,6 +29,9 @@ const Uploading = () => {
         return;
       }
       setPosts(loaded);
+      setCurrent(0);
+      setTrackIndex(1);
+      setIsAnimating(true);
     } catch {
       navigate('/addroute', { replace: true });
     }
@@ -28,18 +40,6 @@ const Uploading = () => {
   const extended = useMemo(() => {
     if (posts.length === 0) return [];
     return [posts[posts.length - 1], ...posts, posts[0]];
-  }, [posts]);
-
-  const [current, setCurrent] = useState(0);
-  const [trackIndex, setTrackIndex] = useState(1);
-  const [isAnimating, setIsAnimating] = useState(true);
-
-  useEffect(() => {
-    if (posts.length > 0) {
-      setCurrent(0);
-      setTrackIndex(1);
-      setIsAnimating(true);
-    }
   }, [posts]);
 
   const goTo = (i) => {
@@ -81,8 +81,6 @@ const Uploading = () => {
     }
   }, [isAnimating, trackIndex]);
 
-  const [touchStart, setTouchStart] = useState(null);
-  const [touchEnd, setTouchEnd] = useState(null);
   const onTouchStart = (e) => setTouchStart(e.targetTouches[0].clientX);
   const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
   const onTouchEnd = () => {
@@ -94,38 +92,77 @@ const Uploading = () => {
     setTouchStart(null);
     setTouchEnd(null);
   };
+
   const onKeyDown = (e) => {
     if (e.key === 'ArrowRight') next();
     else if (e.key === 'ArrowLeft') prev();
   };
 
-  const handleUpload = () => {
-    console.log('UPLOAD DATA:', posts);
-    sessionStorage.removeItem(STORAGE_KEY);
-  };
-
-  if (posts.length === 0) return null;
-
   const handleRemoveCurrent = () => {
     setPosts((prev) => {
       if (prev.length === 0) return prev;
-      const next = prev.filter((_, i) => i !== current);
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      if (next.length === 0) {
+      const nextArr = prev.filter((_, i) => i !== current);
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(nextArr));
+      if (nextArr.length === 0) {
         navigate('/addroute', { replace: true });
-        return next;
+        return nextArr;
       }
-      const newCurrent = current >= next.length ? next.length - 1 : current;
+      const newCurrent = current >= nextArr.length ? nextArr.length - 1 : current;
       setCurrent(newCurrent);
       setIsAnimating(false);
       setTrackIndex(newCurrent + 1);
       requestAnimationFrame(() => setIsAnimating(true));
-      return next;
+      return nextArr;
     });
   };
 
+  const handleUpload = async () => {
+    if (!routeInfo || !routeInfo.title) {
+      alert('루트 기본정보가 없습니다.');
+      return;
+    }
+
+    try {
+      const payload = {
+        title: routeInfo.title,
+        target: routeInfo.target,
+        keywords: routeInfo.keywords,
+        visitedDate: routeInfo.visitedDate,
+        places: posts.map((p, idx) => ({
+          order: idx,
+          name: p.placeName,
+          category: p.category,
+          address: p.address || '',
+          latitude: p.latitude ?? 0,
+          longitude: p.longitude ?? 0,
+          photoUrl: p.imageUrl || '',
+          review: p.review || '',
+        })),
+      };
+
+      const res = await createRoute(payload);
+      const data = res?.data ?? res;
+      const first = Array.isArray(data) ? data[0] : data?.data || data;
+      const courseId = first?.courseId || first?.id || first?.routeId;
+
+      if (!courseId) {
+        alert('업로드는 되었지만 courseId가 없습니다.');
+        sessionStorage.removeItem(STORAGE_KEY);
+        navigate('/home');
+        return;
+      }
+
+      sessionStorage.removeItem(STORAGE_KEY);
+      navigate(`/course/${courseId}`);
+    } catch (err) {
+      alert(err.message || '루트 업로드 중 오류가 발생했습니다.');
+    }
+  };
+
+  if (!posts || posts.length === 0) return null;
+
   return (
-    <div id='uploading_wrap'>
+    <div id="uploading_wrap">
       <div className="uploading_header">
         <button className="back_btn" onClick={() => navigate(-1)}>
           <img src={back_btn} alt="" />
@@ -135,14 +172,18 @@ const Uploading = () => {
 
       <div className="uploading_content">
         <div className="visitday">
-          <p>방문일 2025.01.01</p>
+          <p>방문일 {routeInfo?.visitedDate?.replaceAll('-', '.') || '미지정'}</p>
         </div>
 
         <div className="place_title">
-          <p>{`${current + 1}번 ${posts[current].placeName || '장소 미지정'}`}</p>
-          <div className="category">
-            <p>{posts[current].category || '카테고리'}</p>
-          </div>
+          {posts[current] && (
+            <>
+              <p>{`${current + 1}번 ${posts[current].placeName || '장소 미지정'}`}</p>
+              <div className="category">
+                <p>{posts[current].category || '카테고리'}</p>
+              </div>
+            </>
+          )}
           <button className="cancel" onClick={handleRemoveCurrent}>
             <p>취소</p>
           </button>
@@ -159,20 +200,31 @@ const Uploading = () => {
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          <button type="button" className="nav_zone left" tabIndex={-1} onClick={prev} aria-label="이전 게시글" />
-          <button type="button" className="nav_zone right" tabIndex={-1} onClick={next} aria-label="다음 게시글" />
+          <button
+            type="button"
+            className="nav_zone left"
+            tabIndex={-1}
+            onClick={prev}
+          />
+          <button
+            type="button"
+            className="nav_zone right"
+            tabIndex={-1}
+            onClick={next}
+          />
 
           <div
             className={`slider_track${isAnimating ? ' anim' : ''}`}
-            style={{
-              transform: `translateX(calc(-${trackIndex * 100}% + ${trackIndex * 5}px))`,
-            }}
+            style={{ transform: `translateX(calc(-${trackIndex * 100}% + ${trackIndex * 5}px))` }}
             onTransitionEnd={handleTransitionEnd}
           >
             {extended.map((post, i) => {
               const isCenter = i === trackIndex;
               return (
-                <div key={`${post.placeName || 'post'}-${i}`} className={`slide_card${isCenter ? ' is-center' : ''}`}>
+                <div
+                  key={`${post.placeName || 'post'}-${i}`}
+                  className={`slide_card${isCenter ? ' is-center' : ''}`}
+                >
                   <div className="uploaded_img2">
                     {post.imageUrl ? (
                       <img src={post.imageUrl} alt={`${post.placeName || '이미지'}`} />
@@ -207,8 +259,6 @@ const Uploading = () => {
               onClick={() => goTo(i)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && goTo(i)}
-              aria-label={`${i + 1}번 게시글로 이동`}
             />
           ))}
         </div>

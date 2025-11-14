@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+.font-titan {
+  font-family: "Titan One", cursive !important;
+}
+
 @theme {
   /* Colors */
   --color-white: #ffffff;

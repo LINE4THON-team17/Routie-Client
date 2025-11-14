@@ -14,6 +14,9 @@ const Routemake = () => {
 
   const titleRef = useRef(null);
   const recommendRef = useRef(null);
+  const yearRef = useRef(null);
+  const monthRef = useRef(null);
+  const dayRef = useRef(null);
 
   useEffect(() => {
     if (!tagInputRef.current) return;
@@ -37,7 +40,7 @@ const Routemake = () => {
     tagifyRef.current.on('edit:updated', handleChange);
 
     return () => {
-      try { tagifyRef.current?.destroy(); } catch(e) {}
+      try { tagifyRef.current?.destroy(); } catch (e) {}
     };
   }, []);
 
@@ -63,7 +66,28 @@ const Routemake = () => {
   }, []);
 
   const goToPlaceSearch = () => {
-    navigate("/placesearch", { state: { keywords } });
+    const title = titleRef.current?.value.trim() || "";
+    const target = recommendRef.current?.value.trim() || "";
+    const y = yearRef.current?.value.trim() || "";
+    const m = monthRef.current?.value.trim() || "";
+    const d = dayRef.current?.value.trim() || "";
+
+    const visitedDate =
+      y && m && d ? `${y.padStart(4, "0")}-${m.padStart(2, "0")}-${d.padStart(2, "0")}` : "";
+
+    if (!title || !target || keywords.length < 3) {
+      alert("제목, 추천 대상, 키워드(3개 이상)를 입력해주세요.");
+      return;
+    }
+
+    navigate("/placesearch", {
+      state: {
+        title,
+        target,
+        keywords,
+        visitedDate,
+      },
+    });
   };
 
   return (
@@ -111,13 +135,13 @@ const Routemake = () => {
             <p>언제 이 루트를 방문하셨나요? (선택)</p>
             <div className="box">
               <div className="input_box1">
-                <input type="text" inputMode="numeric" placeholder="" />
+                <input ref={yearRef} type="text" inputMode="numeric" placeholder="YYYY" />
               </div>
               <div className="input_box2">
-                <input type="text" inputMode="numeric" placeholder="" />
+                <input ref={monthRef} type="text" inputMode="numeric" placeholder="MM" />
               </div>
               <div className="input_box2">
-                <input type="text" inputMode="numeric" placeholder="" />
+                <input ref={dayRef} type="text" inputMode="numeric" placeholder="DD" />
               </div>
             </div>
           </div>

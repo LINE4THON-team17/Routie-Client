@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { BottomNavBar } from '../layout/BottomNavBar';
-import back_btn from '../../assets/icons/backicon.svg';
+import back_btn from '../../assets/icons/backIcon.svg';
 import searchIcon from '../../assets/icons/searchIcon.svg';
 import '../../assets/sass/newroute/placesearch.scss';
 
@@ -35,8 +35,9 @@ function loadKakaoSDK() {
 
 const Placesearch = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [q, setQ] = useState('');
-  const [results, setResults] = useState([]);   
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
   const debounceTimer = useRef(null);
@@ -66,6 +67,8 @@ const Placesearch = () => {
                 (d.category_name ? d.category_name.split(' > ')[0] : '') ||
                 '장소',
               address: d.road_address_name || d.address_name || '',
+              latitude: d.y ? parseFloat(d.y) : null,
+              longitude: d.x ? parseFloat(d.x) : null,
               raw: d,
             }));
             setResults(mapped);
@@ -87,7 +90,6 @@ const Placesearch = () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
   }, [keyword]);
-
 
   return (
     <div id="placesearch_wrap">
@@ -135,10 +137,17 @@ const Placesearch = () => {
                   onClick={() => {
                     navigate('/addroute', {
                       state: {
+                        title: location.state?.title || "",
+                        target: location.state?.target || "",
+                        keywords: location.state?.keywords || [],
+                        visitedDate: location.state?.visitedDate || "",
                         place: {
                           id: p.id,
                           name: p.name,
                           category: p.category,
+                          address: p.address || "",
+                          latitude: p.latitude,
+                          longitude: p.longitude,
                         },
                       },
                     });

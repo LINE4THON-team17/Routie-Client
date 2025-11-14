@@ -22,7 +22,13 @@ export const Header = ({ type, text }) => {
           >
             <img src={backIcon} alt="<" />
           </button>
-          <h4 className="text-center w-full">{text}</h4>
+          <h4
+            className={`text-center w-full ${
+              type === "chat" ? "font-titan text-[var(--color-pink)]" : ""
+            }`}
+          >
+            {text}
+          </h4>
         </div>
       )}
     </div>

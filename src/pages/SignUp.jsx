@@ -15,7 +15,7 @@ export function SignUp() {
 
   const isValid = useMemo(() => {
     const okEmail = /\S+@\S+\.\S+/.test(email);
-    const okPw = password.length >= 8; // 비밀번호 8자 이상 => 사용자들에게 설명 필요.
+    const okPw = password.length >= 8;
     const okId = username.trim().length >= 2;
     return okEmail && okPw && okId;
   }, [email, password, username]);
@@ -38,9 +38,7 @@ export function SignUp() {
         alert("회원가입 성공! 로그인 페이지로 이동합니다.");
         navigate("/login");
       } else {
-        setErrorMsg(
-          res?.data?.message || "회원가입 처리 중 오류가 발생했습니다."
-        );
+        setErrorMsg(res?.data?.message || "회원가입 처리 중 오류가 발생했습니다.");
       }
     } catch (err) {
       setErrorMsg(err.message || "회원가입에 실패했습니다.");
@@ -67,6 +65,7 @@ export function SignUp() {
               />
             </Label>
           </Field>
+
           <Field>
             <Label>
               아이디
@@ -81,6 +80,7 @@ export function SignUp() {
               />
             </Label>
           </Field>
+
           <Field>
             <Label>
               비밀번호
@@ -96,6 +96,7 @@ export function SignUp() {
           </Field>
 
           {errorMsg && <ErrorMsg>{errorMsg}</ErrorMsg>}
+
           <Submit type="submit" disabled={!isValid || loading}>
             {loading ? "처리 중..." : "회원가입"}
           </Submit>
@@ -165,6 +166,7 @@ const Input = styled.input`
 
   &:focus {
     border-color: #9e9ea7;
+    outline: none;
   }
 `;
 
@@ -184,11 +186,16 @@ const Submit = styled.button`
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
+  outline: none;
   transition: opacity 0.2s ease, transform 0.02s ease;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -207,4 +214,9 @@ const LoginLink = styled.button`
   padding: 0;
   color: var(--color-blue, #417ff9);
   cursor: pointer;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
 `;

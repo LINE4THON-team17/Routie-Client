@@ -53,7 +53,7 @@ export const BottomSheet = ({ children }) => {
         touchAction: "none",
         height: SHEET_OPEN,
       }}
-      className="fixed bottom-0 left-0 w-full bg-[var(--color-bgwht)] rounded-t-2xl shadow-2xl z-7 "
+      className="fixed bottom-0 left-0 w-full bg-[var(--color-bgwht)] rounded-t-2xl shadow-2xl z-20 "
     >
       {/* 핸들바 */}
       <div

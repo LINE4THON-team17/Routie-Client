@@ -26,33 +26,61 @@ const Addroute = () => {
   }, [posts]);
 
   const processedKeyRef = useRef(null);
+
   useEffect(() => {
     const incoming = location.state?.place;
     if (!incoming) return;
 
+    const exists = posts.some((p) => p.placeName === incoming.name);
+    if (exists) return;
+
     if (processedKeyRef.current === location.key) return;
     processedKeyRef.current = location.key;
 
-    setPosts(prev => [
+    setPosts((prev) => [
       ...prev,
-      { imageUrl: '', review: '', placeName: incoming.name, category: incoming.category },
+      {
+        imageUrl: '',
+        review: '',
+        placeName: incoming.name,
+        category: incoming.category,
+        address: incoming.address || '',
+        latitude: incoming.latitude ?? null,
+        longitude: incoming.longitude ?? null,
+      },
     ]);
+  }, [location.key, location.state?.place, posts]);
 
-    navigate('/addroute', { replace: true });
-  }, [location.key, location.state, navigate]);
+  const handleComplete = () => {
+    navigate('/uploading', {
+      state: {
+        title: location.state?.title || '',
+        target: location.state?.target || '',
+        keywords: location.state?.keywords || [],
+        visitedDate: location.state?.visitedDate || '',
+      },
+    });
+  };
 
-  const handleComplete = () => navigate('/uploading');
-
-  const handleAddPost = () => navigate('/placesearch', { state: { from: '/addroute' } });
+  const handleAddPost = () =>
+    navigate('/placesearch', {
+      state: {
+        title: location.state?.title || '',
+        target: location.state?.target || '',
+        keywords: location.state?.keywords || [],
+        visitedDate: location.state?.visitedDate || '',
+        from: '/addroute',
+      },
+    });
 
   const handleRemovePost = (idx) => {
-    setPosts(prev => prev.filter((_, i) => i !== idx));
+    setPosts((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleImage = (idx, file) => {
     if (!file) return;
     const url = URL.createObjectURL(file);
-    setPosts(prev => {
+    setPosts((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], imageUrl: url };
       return next;
@@ -60,7 +88,7 @@ const Addroute = () => {
   };
 
   const handleReview = (idx, value) => {
-    setPosts(prev => {
+    setPosts((prev) => {
       const next = [...prev];
       next[idx] = { ...next[idx], review: value.slice(0, 500) };
       return next;
@@ -68,7 +96,7 @@ const Addroute = () => {
   };
 
   return (
-    <div id='addroute_wrap'>
+    <div id="addroute_wrap">
       <div className="add_header">
         <button className="back_btn" onClick={() => navigate(-1)}>
           <img src={back_btn} alt="" />
@@ -76,11 +104,13 @@ const Addroute = () => {
         <p>글 작성</p>
       </div>
 
-      <div className="content">
+      <div className="addroute_content">
         {posts.map((post, idx) => (
           <div key={`${post.placeName}-${idx}`}>
             <div className="place_title">
-              <p>{idx + 1}번 {post.placeName || '장소 미지정'}</p>
+              <p>
+                {idx + 1}번 {post.placeName || '장소 미지정'}
+              </p>
               <div className="category">
                 <p>{post.category || '카테고리'}</p>
               </div>
@@ -97,12 +127,13 @@ const Addroute = () => {
                   ) : (
                     <>
                       <img className="camera" src={cameraIcon} alt="" />
-                      <p className="upload_tip">가장 기억에 남는 사진을 업로드 해주세요</p>
+                      <p className="upload_tip">
+                        가장 기억에 남는 사진을 업로드 해주세요
+                      </p>
                     </>
                   )}
                 </div>
               </label>
-
               <input
                 type="file"
                 id={`imageUpload-${idx}`}
@@ -111,9 +142,6 @@ const Addroute = () => {
                 onChange={(e) => handleImage(idx, e.target.files?.[0])}
               />
             </div>
-
-
-
 
             <div className="review">
               <textarea
@@ -131,11 +159,7 @@ const Addroute = () => {
           <img src={plusIcon} alt="" />
         </button>
 
-        <button
-          className="complete"
-          onClick={handleComplete}
-          style={{ position: 'static', display: 'block', marginLeft: 'auto', marginBottom: '20px' }}
-        >
+        <button className="complete" onClick={handleComplete}>
           <p>완료</p>
         </button>
       </div>

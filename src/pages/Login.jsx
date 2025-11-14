@@ -131,6 +131,7 @@ const Input = styled.input`
 
   &:focus {
     border-color: #9e9ea7;
+    outline: none;
   }
 `;
 
@@ -145,12 +146,12 @@ const LoginButton = styled.button`
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
+  outline: none;
   transition: opacity 0.2s ease, transform 0.02s ease;
 
-  /* &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  } */
+  &:focus {
+    outline: none;
+  }
 `;
 
 const SignupRow = styled.div`
@@ -168,4 +169,9 @@ const SignupLink = styled.button`
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
+  outline: none;
+
+  &:focus {
+    outline: none;
+  }
 `;
