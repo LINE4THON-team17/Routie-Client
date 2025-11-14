@@ -33,6 +33,7 @@ export const Course = () => {
         <CourseListSection
           onClick={() => setShowModal(true)}
           coursedata={course}
+          routeId={routeId}
         />
       </BottomSheet>
       {showModal && <ShareUrlModal onClose={() => setShowModal(false)} />}

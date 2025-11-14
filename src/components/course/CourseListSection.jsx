@@ -4,24 +4,40 @@ import rightFoot from "../../assets/icons/rightFoot.svg";
 import saveIcon from "../../assets/icons/saveIcon.svg";
 import saveIconWhite from "../../assets/icons/saveIconWhite.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
-import { useState } from "react";
-import { useSaveRoute, useUnsaveRoute } from "../../api/routes";
+import { useEffect, useState } from "react";
+import { getIsSaved, useSaveRoute, useUnsaveRoute } from "../../api/routes";
+import { useQuery } from "@tanstack/react-query";
 
-export const CourseListSection = ({ onClick, coursedata }) => {
+export const CourseListSection = ({ onClick, coursedata, routeId }) => {
   const [save, setSave] = useState(false);
 
   const { mutate: saveRoute } = useSaveRoute();
   const { mutate: unsaveRoute } = useUnsaveRoute();
 
+  const { data: isSaved } = useQuery({
+    queryKey: ["isRouteSaved", routeId],
+    queryFn: () => getIsSaved({ routeId }),
+    enabled: !!routeId,
+  });
+
+  useEffect(() => {
+    if (isSaved) {
+      setSave(true);
+    } else {
+      setSave(false);
+    }
+  }, [isSaved]);
+
+  console.log(isSaved);
   const SAVEICON = save ? saveIconWhite : saveIcon;
 
   const handleClick = () => {
     const willSave = !save;
     setSave(willSave);
     if (willSave) {
-      saveRoute(coursedata.routeId);
+      saveRoute(routeId);
     } else {
-      unsaveRoute(coursedata.routeId);
+      unsaveRoute(routeId);
     }
   };
 
@@ -53,7 +69,7 @@ export const CourseListSection = ({ onClick, coursedata }) => {
               )}
 
               <CourseItemBox
-                courseId={coursedata.routeId}
+                courseId={routeId}
                 placedata={coursedata.places[idx]}
               />
             </div>

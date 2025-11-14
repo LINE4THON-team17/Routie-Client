@@ -51,3 +51,9 @@ export function useUnsaveRoute() {
     },
   });
 }
+
+export const getIsSaved = async ({ routeId }) => {
+  const res = await axiosInstance.get(`/users/${routeId}/check`);
+  console.log(res.data);
+  return res.data;
+};
