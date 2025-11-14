@@ -25,25 +25,10 @@ export const getMyRoutes = ({ page = 0, size = 20 } = {}) =>
 export const getRouteDetailRaw = (routeId) =>
   axiosInstance.get(`/routes/${routeId}`);
 
-// export const hydrateRoutesByIds = async (ids = []) => {
-//   if (!ids.length) return [];
+/** 내가 만든 루트 삭제 */
+export const deleteMyRoute = (routeId) =>
+  axiosInstance.delete(`/routes/${routeId}`);
 
-//   const settled = await Promise.allSettled(
-//     ids.map((id) => getRouteDetailRaw(id))
-//   );
-
-//   return settled
-//     .filter((s) => s.status === "fulfilled")
-//     .map((s) => {
-//       const body = s.value?.data;
-//       const d = body?.data || body;
-//       return {
-//         id: d.routeId ?? d.id,
-//         title: d.title,
-//         thumbnail: d.places?.[0]?.photoUrl ?? "",
-//         distance: d.distance ?? null,
-//         duration: d.duration ?? null,
-//         keywords: d.keywords ?? [],
-//       };
-//     });
-// };
+/** 저장한 루트 삭제(언팔로우 느낌) */
+export const deleteSavedRoute = (routeId) =>
+  axiosInstance.delete(`/routes/${routeId}/save`);
