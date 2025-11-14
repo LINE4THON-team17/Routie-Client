@@ -38,7 +38,9 @@ export function SignUp() {
         alert("회원가입 성공! 로그인 페이지로 이동합니다.");
         navigate("/login");
       } else {
-        setErrorMsg(res?.data?.message || "회원가입 처리 중 오류가 발생했습니다.");
+        setErrorMsg(
+          res?.data?.message || "회원가입 처리 중 오류가 발생했습니다."
+        );
       }
     } catch (err) {
       setErrorMsg(err.message || "회원가입에 실패했습니다.");
@@ -83,7 +85,7 @@ export function SignUp() {
 
           <Field>
             <Label>
-              비밀번호
+              비밀번호(8자리 이상)
               <Input
                 placeholder="입력"
                 type="password"
@@ -147,6 +149,7 @@ const Label = styled.label`
   font-size: 15px;
   color: #222;
   font-weight: 400;
+  gap: 10px;
 `;
 
 const Input = styled.input`

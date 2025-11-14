@@ -1,5 +1,3 @@
-// src/components/common/shareUrlModal.jsx
-
 import { useEffect, useState } from "react";
 import closeIcon from "../../assets/icons/closeIcon.svg";
 
@@ -7,7 +5,6 @@ export const ShareUrlModal = ({ onClose, url }) => {
   const [copied, setCopied] = useState(false);
   const [currentUrl, setCurrentUrl] = useState(url || "");
 
-  // 부모에서 url이 바뀔 때마다 반영
   useEffect(() => {
     setCurrentUrl(url || "");
   }, [url]);

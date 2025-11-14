@@ -1,4 +1,3 @@
-// src/pages/SharedProfile.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
@@ -8,11 +7,10 @@ import profileIcon from "../assets/icons/profile.svg";
 import friendIcon from "../assets/icons/friendIcon.svg";
 import shareIcon from "../assets/icons/shareIcon.svg";
 import badge from "../assets/icons/badge.svg";
-import followIcon from "../assets/icons/follow.svg"; // 친구 X 상태 아이콘
-import followDoneIcon from "../assets/icons/followDone.svg"; // 친구 O 상태 아이콘
+import followIcon from "../assets/icons/follow.svg";
+import followDoneIcon from "../assets/icons/followDone.svg";
 
 import { ShareUrlModal } from "../components/common/shareUrlModal";
-import { ROUTES } from "../constants/routes";
 
 import {
   getUserIdBySlug,
@@ -21,9 +19,8 @@ import {
   unfollowUser,
   getUserProfileById,
   getUserRoutesById,
-} from "../api/follow"; // 아까 만든 파일
+} from "../api/follow";
 
-// ====== 카드 공통 util들 (MyPage에서 가져온 거 그대로) ======
 const getRouteId = (item) => item?.id ?? item?.routeId ?? item?.courseId;
 
 const getThumbnailUrl = (item) => {
@@ -84,8 +81,6 @@ const getTitle = (item) =>
   item?.routeTitle ??
   "코스 제목";
 
-// ================== 컴포넌트 ==================
-
 export function SharedProfile() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -100,24 +95,20 @@ export function SharedProfile() {
 
   const displayNickname = profile?.nickname || profile?.name || "친구 유저";
 
-  // 뱃지는 여기서는 “그 유저가 쓴 루트 수” 기준으로 간단하게
   const routeCount = routes.length;
   const badgeCount =
     routeCount >= 50 ? 3 : routeCount >= 10 ? 2 : routeCount >= 1 ? 1 : 0;
 
-  // ====== 초기 데이터 로딩 ======
   useEffect(() => {
     if (!slug) return;
 
     (async () => {
       try {
-        // 1. slug → userId
         const idRes = await getUserIdBySlug(slug).then((r) => r.data);
-        const userId = idRes?.data ?? idRes; // 백엔드 응답 형태에 따라
+        const userId = idRes?.data ?? idRes;
         if (!userId) throw new Error("userId 없음");
         setTargetUserId(userId);
 
-        // 2. 프로필 / 루트 / 팔로우 상태 동시에 요청
         const [profileRes, routesRes, statusRes] = await Promise.all([
           getUserProfileById(userId).then((r) => r.data),
           getUserRoutesById({ userId, page: 0, size: 20 }).then((r) => r.data),
@@ -140,7 +131,6 @@ export function SharedProfile() {
     })();
   }, [slug]);
 
-  // ====== 팔로우 토글 ======
   const handleToggleFollow = async () => {
     if (!targetUserId) return;
     try {
@@ -157,7 +147,6 @@ export function SharedProfile() {
     }
   };
 
-  // 공유 버튼 (그냥 현재 URL 공유)
   const handleOpenShare = () => {
     setShareUrl(window.location.href);
     setShowShare(true);
@@ -196,7 +185,6 @@ export function SharedProfile() {
           </BadgeCol>
         </ProfileRow>
 
-        {/* 상단 버튼 3개 (Routies / Share / Follow) */}
         <QuickRow>
           <QuickBtn onClick={() => navigate("/routies")}>
             <span>Routies</span>
@@ -216,13 +204,11 @@ export function SharedProfile() {
           </QuickIconBtn>
         </QuickRow>
 
-        {/* 루트 탭 + 개수 */}
         <Tabs>
           <Tab $active>루트</Tab>
           <TabRightText>{routeCount}개</TabRightText>
         </Tabs>
 
-        {/* 카드 그리드 */}
         <CardGrid>
           {routes.map((item) => {
             const routeId = getRouteId(item);
@@ -266,7 +252,6 @@ export function SharedProfile() {
   );
 }
 
-// ====== 스타일 (MyPage거랑 동일하게 맞춤) ======
 const Inner = styled.div`
   width: 100%;
   margin: 0 auto;

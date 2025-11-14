@@ -12,6 +12,7 @@ import closeIcon from "../assets/icons/closeIcon.svg";
 import rotiePrf from "../assets/icons/rotiePrf.svg";
 import routieMePrf from "../assets/icons/routieMePrf.svg";
 import cameraIcon from "../assets/icons/cameraIcon.svg";
+import trash from "../assets/icons/trash.svg";
 
 import { ShareUrlModal } from "../components/common/shareUrlModal";
 import {
@@ -291,7 +292,6 @@ export function MyPage() {
   };
 
   const openShare = async () => {
-    // 프로필 아직 안 불러왔으면 그냥 현재 주소라도 공유
     if (!profile?.id) {
       setShareUrl(window.location.href);
       setShowShare(true);
@@ -302,7 +302,7 @@ export function MyPage() {
       const res = await createShareLink(profile.id);
       const body = res?.data?.data || res?.data || {};
 
-      const apiShareUrl = body.shareUrl; // 스웨거 예시의 "https://routie.shop/share/users/abc123xy"
+      const apiShareUrl = body.shareUrl;
       const slug = body.slug;
 
       const fallbackUrl = slug
@@ -314,44 +314,12 @@ export function MyPage() {
       setShareUrl(finalUrl);
     } catch (e) {
       console.error("[mypage] 프로필 공유 링크 생성 실패", e);
-      // 실패 시에도 최소한 내 마이페이지라도 공유되게
+
       setShareUrl(`${window.location.origin}/mypage`);
     } finally {
       setShowShare(true);
     }
   };
-
-  // const openShare = async () => {
-  //   if (!profile?.id) {
-  //     // 아직 프로필 로딩 전이면 그냥 현재 주소
-  //     setShareUrl(window.location.href);
-  //     return setShowShare(true);
-  //   }
-
-  //   try {
-  //     const res = await createShareLink(profile.id);
-  //     const d = res?.data?.data || res?.data || {};
-  //     const maybeUrl = d.url || d.link;
-  //     const slug = d.slug;
-
-  //     // ✅ 항상 유저 식별 정보가 들어가도록
-  //     const finalUrl =
-  //       maybeUrl ||
-  //       (slug
-  //         ? `${window.location.origin}/share/u/${slug}`
-  //         : `${window.location.origin}/share/u/${profile.id}`);
-
-  //     setShareUrl(finalUrl);
-  //     setShowShare(true);
-  //   } catch (e) {
-  //     console.error("[mypage] 프로필 공유 링크 생성 실패", e);
-
-  //     // 실패해도 최소한 기본 공유 URL에 id는 붙이기
-  //     const fallback = `${window.location.origin}/share/u/${profile?.id ?? ""}`;
-  //     setShareUrl(fallback);
-  //     setShowShare(true);
-  //   }
-  // };
 
   const onSelect = (routeId) => {
     if (!editMode || !routeId) return;
@@ -524,12 +492,11 @@ export function MyPage() {
               }
             }}
           >
-            🗑
+            <img src={trash} alt="삭제" />
           </TrashFab>
         )}
       </Inner>
 
-      {/* ✅ 로그아웃 확인 모달 */}
       {showLogoutConfirm && (
         <LogoutConfirmModal
           onClose={() => setShowLogoutConfirm(false)}
@@ -549,13 +516,18 @@ export function MyPage() {
 
 const HeaderRight = styled.div`
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px));
+  top: 0;
   right: 16px;
   height: 58px;
   display: flex;
   align-items: center;
-  z-index: 20;
+  z-index: 999;
+  pointer-events: none;
+  & > * {
+    pointer-events: auto;
+  }
 `;
+
 const LogoutBtn = styled.button`
   border: 0;
   background: none;
@@ -765,12 +737,11 @@ const TrashFab = styled.button`
   position: fixed;
   right: 20px;
   bottom: 96px;
-  width: 56px;
-  height: 56px;
+  /* width: 56px;
+  height: 56px; */
   border-radius: 50%;
-  background: #ff5a84;
-  color: #fff;
-  font-size: 22px;
+  background: #fff;
+  font-size: 50px;
   display: grid;
   place-items: center;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);

@@ -1,4 +1,3 @@
-// src/api/auth.js
 import { axiosInstance } from "./axiosInstance";
 
 export async function requestSignup({ email, password, nickname }) {
@@ -35,11 +34,10 @@ export async function requestLogout() {
   console.log("[logout] ▶ POST /auth/logout");
   try {
     const res = await axiosInstance.post("/auth/logout");
-    // 서버/쿠키 정리 후 프론트 토큰 제거
+    // 토큰 제거
     localStorage.removeItem("accessToken");
     return res.data;
   } catch (err) {
-    // 에러여도 클라이언트 토큰은 지워주는 편이 안전
     localStorage.removeItem("accessToken");
     handleAuthError(err, "logout");
   }
