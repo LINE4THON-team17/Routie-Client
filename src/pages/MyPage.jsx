@@ -15,9 +15,78 @@ import {
   getMyProfile,
   updateMyProfile,
   getSavedRoutes,
-  hydrateRoutesByIds,
+  getMyRoutes,
   createShareLink,
+  getRouteDetailRaw, // ✅ 상세 조회
 } from "../api/mypage";
+import { requestLogout } from "../api/auth";
+
+/** 공통: route id 뽑기 (saved 형식 등 모두 대응) */
+const getRouteId = (item) => item?.id ?? item?.routeId ?? item?.courseId;
+
+/** 업로드한 첫 번째 사진(썸네일) 추출 (내 루트 + 저장한 루트 공통) */
+const getThumbnailUrl = (item) => {
+  if (!item) return "";
+
+  // 리스트 응답에 바로 있는 경우
+  if (typeof item.thumbnailUrl === "string" && item.thumbnailUrl)
+    return item.thumbnailUrl;
+  if (typeof item.thumbnail === "string" && item.thumbnail)
+    return item.thumbnail;
+  if (typeof item.thumbnailImageUrl === "string" && item.thumbnailImageUrl)
+    return item.thumbnailImageUrl;
+  if (typeof item.firstImageUrl === "string" && item.firstImageUrl)
+    return item.firstImageUrl;
+
+  // 배열 안에 들어있는 경우들
+  if (Array.isArray(item.images) && item.images[0]?.url)
+    return item.images[0].url;
+  if (Array.isArray(item.photos) && item.photos[0]?.url)
+    return item.photos[0].url;
+  if (Array.isArray(item.courseImages) && item.courseImages[0]?.imageUrl)
+    return item.courseImages[0].imageUrl;
+  if (Array.isArray(item.placeImages) && item.placeImages[0]?.imageUrl)
+    return item.placeImages[0].imageUrl;
+
+  // ✅ /api/routes/{routeId} 상세 응답 형식: data.places[0].photoUrl
+  if (Array.isArray(item.places) && item.places.length > 0) {
+    const first = item.places[0];
+    if (first?.photoUrl) return first.photoUrl;
+    if (Array.isArray(first?.images) && first.images[0]?.url)
+      return first.images[0].url;
+  }
+
+  return "";
+};
+
+/** 키워드 하나 뽑기 (# 앞에 붙일 값) */
+const getKeyword = (item) => {
+  if (!item) return "";
+
+  if (Array.isArray(item.keywords) && item.keywords.length > 0)
+    return item.keywords[0];
+  if (Array.isArray(item.hashtags) && item.hashtags.length > 0)
+    return item.hashtags[0];
+  if (Array.isArray(item.tags) && item.tags.length > 0) return item.tags[0];
+
+  if (typeof item.keyword === "string") return item.keyword;
+  if (typeof item.tag === "string") return item.tag;
+
+  if (Array.isArray(item.keywordNames) && item.keywordNames.length > 0)
+    return item.keywordNames[0];
+  if (Array.isArray(item.keywordList) && item.keywordList.length > 0)
+    return item.keywordList[0];
+
+  return "";
+};
+
+/** 카드 제목 */
+const getTitle = (item) =>
+  item?.title ??
+  item?.name ??
+  item?.courseTitle ??
+  item?.routeTitle ??
+  "코스 제목";
 
 export function MyPage() {
   const navigate = useNavigate();
@@ -25,7 +94,7 @@ export function MyPage() {
   // 탭/수정/선택
   const [activeTab, setActiveTab] = useState("mine"); // "mine" | "saved"
   const [editMode, setEditMode] = useState(false);
-  const [selected, setSelected] = useState(new Set());
+  const [selected, setSelected] = useState(new Set()); // routeId 집합
 
   // 데이터
   const [profile, setProfile] = useState(null);
@@ -38,9 +107,21 @@ export function MyPage() {
   const [showShare, setShowShare] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
 
-  // 화면에 보여줄 닉네임 (name / nickname 둘 다 대응, 빈 문자열이면 기본값)
+  // 화면에 보여줄 닉네임
   const displayNickname =
     profile?.nickname || profile?.name || nickname || "유저아이디";
+
+  /** 로그아웃 처리 */
+  const handleLogout = async () => {
+    try {
+      await requestLogout();
+    } catch (e) {
+      console.error("[mypage] 로그아웃 실패", e);
+    } finally {
+      localStorage.removeItem("accessToken");
+      navigate("/login");
+    }
+  };
 
   // 최초 로딩
   useEffect(() => {
@@ -59,28 +140,54 @@ export function MyPage() {
         console.error("[mypage] 내 프로필 불러오기 실패", e);
       }
 
-      // 2) 저장한 루트 (GET /api/users/me/saved)
+      // 공통: 리스트 -> 상세 붙이기
+      const attachDetail = async (items, label) => {
+        return Promise.all(
+          items.map(async (item) => {
+            const id = getRouteId(item);
+            if (!id) return item;
+            try {
+              const detailRes = await getRouteDetailRaw(id);
+              const detail = detailRes?.data?.data ?? detailRes?.data ?? {};
+              // detail에 keywords, places(photoUrl) 등이 들어있음
+              const merged = { ...detail, ...item }; // 리스트 필드가 우선
+              return merged;
+            } catch (e) {
+              console.error(
+                `[mypage] ${label} route detail 불러오기 실패`,
+                id,
+                e
+              );
+              return item;
+            }
+          })
+        );
+      };
+
+      // 2) 저장한 루트 (GET /api/users/me/saved) + 상세
       try {
         const savedRes = await getSavedRoutes({ page: 0, size: 20 }).then(
           (r) => r.data
         );
-        // 백엔드가 [] 혹은 { data: [] } 둘 다 대응
-        const arr = savedRes?.data ?? savedRes ?? [];
-        setSavedRoutes(arr);
+        const savedList = savedRes?.data ?? savedRes ?? [];
+        const savedWithDetail = await attachDetail(savedList, "saved");
+        setSavedRoutes(savedWithDetail);
       } catch (e) {
-        // 실패해도 화면만 안 깨지게
+        console.error("[mypage] 저장한 루트 불러오기 실패", e);
         setSavedRoutes([]);
       }
 
-      // 3) 내가 만든 루트: 로컬에 저장된 routeId 리스트 기준으로 하이드레이트
+      // 3) 내가 만든 루트 (리스트 + 상세)
       try {
-        const ids = JSON.parse(
-          (typeof window !== "undefined" &&
-            window.localStorage.getItem("myRouteIds")) ||
-            "[]"
+        const myRes = await getMyRoutes({ page: 0, size: 20 }).then(
+          (r) => r.data
         );
-        const arr = await hydrateRoutesByIds(ids);
-        setMyRoutes(arr);
+        const listRaw = myRes?.data ?? myRes ?? [];
+        console.log("[mypage] myRoutes list raw:", listRaw);
+
+        const withDetail = await attachDetail(listRaw, "mine");
+        console.log("[mypage] myRoutes merged:", withDetail);
+        setMyRoutes(withDetail);
       } catch (e) {
         console.error("[mypage] 내 루트 불러오기 실패", e);
         setMyRoutes([]);
@@ -106,7 +213,7 @@ export function MyPage() {
         })
         .finally(() => setEditMode(false));
     } else {
-      // 수정 모드 진입: 입력 칸에 현재 닉네임/이미지 미리 넣기
+      // 수정 모드 진입
       setNickname(displayNickname || "");
       setProfileImageUrl(profile?.profileImageUrl ?? "");
       setEditMode(true);
@@ -142,27 +249,32 @@ export function MyPage() {
   };
 
   /** 카드 선택/해제 (편집 모드에서만) */
-  const onSelect = (id) => {
-    if (!editMode) return;
+  const onSelect = (routeId) => {
+    if (!editMode || !routeId) return;
     setSelected((prev) => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      n.has(routeId) ? n.delete(routeId) : n.add(routeId);
       return n;
     });
   };
 
   /** 카드 클릭 → 상세 페이지로 이동 (편집 모드면 선택만) */
   const onCardClick = (item) => {
-    if (editMode) return onSelect(item.id);
-    navigate(`/course/${item.id}`); // ROUTES.COURSE = "/course/:id"
+    const routeId = getRouteId(item);
+    if (!routeId) return;
+
+    if (editMode) return onSelect(routeId);
+    navigate(`/course/${routeId}`); // ROUTES.COURSE = "/course/:id"
   };
 
   /** 삭제 실행 (API 붙으면 여기서 호출) */
   const onConfirmDelete = () => {
     if (activeTab === "saved") {
-      setSavedRoutes((old) => old.filter((it) => !selected.has(it.id)));
+      setSavedRoutes((old) =>
+        old.filter((it) => !selected.has(getRouteId(it)))
+      );
     } else {
-      setMyRoutes((old) => old.filter((it) => !selected.has(it.id)));
+      setMyRoutes((old) => old.filter((it) => !selected.has(getRouteId(it))));
     }
     setSelected(new Set());
   };
@@ -170,11 +282,8 @@ export function MyPage() {
   return (
     <Layout type="logo">
       <HeaderRight>
-        <LogoutBtn onClick={() => alert("로그아웃 처리 연결 예정")}>
-          로그아웃
-        </LogoutBtn>
+        <LogoutBtn onClick={handleLogout}>로그아웃</LogoutBtn>
       </HeaderRight>
-
       <Inner>
         {/* 프로필 영역 */}
         <ProfileRow>
@@ -203,20 +312,20 @@ export function MyPage() {
         {/* 퀵 액션 버튼 */}
         <QuickRow>
           <QuickBtn onClick={() => navigate("/routies")}>
-            <img src={friendIcon} alt="친구" />
             <span>Routies</span>
+            <img src={friendIcon} alt="친구" />
           </QuickBtn>
           <QuickBtn onClick={openShare}>
-            <img src={shareIcon} alt="공유" />
             <span>Share</span>
+            <img src={shareIcon} alt="공유" />
           </QuickBtn>
-          <QuickBtn onClick={toggleEdit}>
+          <QuickIconBtn onClick={toggleEdit}>
             {!editMode ? (
               <img src={settingIcon} alt="설정" />
             ) : (
               <SaveBtn>save</SaveBtn>
             )}
-          </QuickBtn>
+          </QuickIconBtn>
         </QuickRow>
 
         {/* 프로필 이미지 URL 간단 수정 필드 */}
@@ -250,32 +359,36 @@ export function MyPage() {
 
         {/* 카드 그리드 */}
         <CardGrid>
-          {list.map((item) => (
-            <Card key={item.id} onClick={() => onCardClick(item)}>
-              <Thumb
-                style={
-                  item.thumbnail
-                    ? {
-                        backgroundImage: `url(${item.thumbnail})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }
-                    : {}
-                }
-              />
-              <CardOverlay>
-                <Small>
-                  {item.keywords?.length
-                    ? `# ${item.keywords[0]}`
-                    : item.distance != null && item.duration != null
-                    ? `${item.distance}km · ${item.duration}min`
-                    : "# 키워드"}
-                </Small>
-                <Title>{item.title || "코스 제목"}</Title>
-              </CardOverlay>
-              {editMode && <SelectDot $active={selected.has(item.id)} />}
-            </Card>
-          ))}
+          {list.map((item) => {
+            const routeId = getRouteId(item);
+            const thumbUrl = getThumbnailUrl(item);
+            const keyword = getKeyword(item);
+            const title = getTitle(item);
+
+            return (
+              <Card
+                key={routeId ?? Math.random()}
+                onClick={() => onCardClick(item)}
+              >
+                <Thumb
+                  style={
+                    thumbUrl
+                      ? {
+                          backgroundImage: `url(${thumbUrl})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }
+                      : {}
+                  }
+                />
+                <CardOverlay>
+                  <Small>{keyword ? `# ${keyword}` : "# 키워드"}</Small>
+                  <Title>{title}</Title>
+                </CardOverlay>
+                {editMode && <SelectDot $active={selected.has(routeId)} />}
+              </Card>
+            );
+          })}
         </CardGrid>
 
         {/* 삭제 버튼 (편집 모드 + 선택이 있을 때만) */}
@@ -322,11 +435,10 @@ const Inner = styled.div`
 const ProfileRow = styled.div`
   display: grid;
   grid-template-columns: 84px 1fr auto;
-  gap: 16px;
+  gap: 10px;
   align-items: center;
-  padding: 14px 0 10px;
+  padding: 20px 20px 20px;
   background: #fff;
-  border-bottom: 1px solid #e9e9ed;
 `;
 const UserCol = styled.div`
   display: flex;
@@ -350,31 +462,60 @@ const BadgeCol = styled.div`
   padding-right: 8px;
 `;
 const QuickRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  padding: 14px 6px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px 20px;
   background: #fff;
 `;
 const QuickBtn = styled.button`
-  background: #fff;
-  border-radius: 8px;
-  border: 0.5px solid #858282;
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-radius: var(--Radius-M, 13px);
+  border: 0.5px solid var(--Color-gray, #858282);
+  background: #fff;
+  cursor: pointer;
+
+  color: #111827;
+  font-size: 14px;
+  font-weight: 400;
+
+  img {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+`;
+const QuickIconBtn = styled.button`
+  width: 45px;
+  height: 45px;
+  border-radius: var(--Radius-M, 13px);
+  border: 0.5px solid var(--Color-gray, #858282);
+  background: #fff;
+  display: flex;
+  align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #000;
-  font-size: 12px;
-  font-weight: 400;
+
+  img {
+    width: 20px;
+    height: 20px;
+  }
 `;
 const SaveBtn = styled.span`
+  width: 45px;
+  height: 44px;
+  border-radius: var(--Radius-M, 13px);
   background: #4ade80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 400;
   color: #fff;
-  font-weight: 700;
-  border-radius: 8px;
-  padding: 6px 10px;
 `;
 const EditRow = styled.div`
   background: #fff;
