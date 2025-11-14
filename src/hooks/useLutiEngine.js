@@ -68,7 +68,9 @@ function extractJsonFromText(text) {
 ------------------------------ */
 function extractResponseText(response) {
   console.log("extractResponseText() 실행 — response:", response);
-
+  if (response?.routeTitle && Array.isArray(response?.places)) {
+    return "";
+  }
   try {
     const text =
       response?.fullText ||
@@ -187,11 +189,22 @@ export function useLutiEngine() {
       if (naturalMessage) addAssistant(naturalMessage);
 
       /* JSON 파싱 */
-      const json = extractJsonFromText(fullText);
-      if (json) setResult(json);
-      else addAssistant("앗, 코스를 읽어오는 데 문제가 생겼어 🥲");
+      let json = null;
 
-      addAssistant("짜봤어! 이 코스 어때? 😆");
+      // 서버리스 JSON 그대로
+      if (response?.routeTitle && Array.isArray(response?.places)) {
+        json = response;
+      }
+
+      // 로컬
+      if (!json) {
+        json = extractJsonFromText(fullText);
+      }
+
+      if (json) {
+        setResult(json);
+        addAssistant("짜봤어! 이 코스 어때? 😆");
+      } else addAssistant("앗, 코스를 읽어오는 데 문제가 생겼어 🥲");
     } catch (e) {
       console.error("Gemini API 에러:", e);
       addAssistant("앗... 루트 만드는 중에 문제가 생겼어 🥲");
